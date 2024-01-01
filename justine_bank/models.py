@@ -4,6 +4,7 @@ import sqlalchemy
 import ormar
 
 DATABASE_URL = "sqlite:///db.sqlite"
+USERNAME_REGEX = r"^(?=(?:[0-9_]*[a-z]){3})[a-z0-9_]{5,}$"
 
 database = databases.Database(DATABASE_URL)
 metadata = sqlalchemy.MetaData()
@@ -16,7 +17,7 @@ class Wallet(ormar.Model):
 
     id: int = ormar.Integer(primary_key=True)
 
-    owner_username: str = ormar.String(max_length=120)
+    owner_username: str = ormar.String(max_length=120, regex=USERNAME_REGEX)
     balance: float = ormar.Float(default=0.0, minimum=0.0)
 
 
