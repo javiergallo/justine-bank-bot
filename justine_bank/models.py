@@ -28,7 +28,7 @@ class Issue(ormar.Model):
 
     id: int = ormar.Integer(primary_key=True)
 
-    recipient: Wallet = ormar.ForeignKey(Wallet)
+    recipient: Wallet = ormar.ForeignKey(Wallet, nullable=False)
     amount: float = ormar.Float(minimum=0.0)
 
 
@@ -40,8 +40,12 @@ class Transfer(ormar.Model):
 
     id: int = ormar.Integer(primary_key=True)
 
-    sender: Wallet = ormar.ForeignKey(Wallet, related_name="debits")
-    recipient: Wallet = ormar.ForeignKey(Wallet, related_name="credits")
+    sender: Wallet = ormar.ForeignKey(
+        Wallet, nullable=False, related_name="debits"
+    )
+    recipient: Wallet = ormar.ForeignKey(
+        Wallet, nullable=False, related_name="credits"
+    )
     amount: float = ormar.Float(minimum=0.0)
 
 
