@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "justine-bank-bot"
+version = "0.1.0"
+description = ""
+authors = ["Javier Gallo <javier_rooster@yahoo.com.ar>"]
+readme = "README.md"
+packages = [{include = "justine_bank_bot"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+python-telegram-bot = "^20.7"
+ormar = {extras = ["sqllite"], version = "^0.12.2"}
+aiosqlite = "^0.19.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
