@@ -3,10 +3,11 @@ import sqlalchemy
 
 import ormar
 
-DATABASE_URL = "sqlite:///db.sqlite"
+from justine_bank.settings import config
+
 USERNAME_REGEX = r"^(?=(?:[0-9_]*[a-z]){3})[a-z0-9_]{5,}$"
 
-database = databases.Database(DATABASE_URL)
+database = databases.Database(config.database_config.url)
 metadata = sqlalchemy.MetaData()
 
 
@@ -50,5 +51,5 @@ class Transfer(ormar.Model):
     amount: float = ormar.Float(minimum=0.0)
 
 
-engine = sqlalchemy.create_engine(DATABASE_URL)
+engine = sqlalchemy.create_engine(config.database_config.url)
 metadata.create_all(engine)
