@@ -8,11 +8,14 @@ from telegram.ext import (
     MessageHandler,
 )
 
+from ormar.exceptions import AsyncOrmException
+
 from justine_bank.models import Issue, Transfer, Wallet
 
 API_TOKEN = "6781101095:AAEYSlIPOQ4SDdn3zDxYs0UhtIwMZPIiHwg"
 USERNAME = "JustineBankBot"
 
+ERROR_TEXT_PATTERN = "Uy! Algo salió mal! {description} \U0001F974"
 WELCOME_TEXT_PATTERN = (
     "¡Hola {username}! Soy el bot administrador del Banco de Justines. Enviá "
     "/help si querés que te cuente qué se puede hacer en el Banco de Justines."
@@ -78,23 +81,38 @@ async def list_issues(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logger.info("Issues listed")
 
 async def issue(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    amount_str, recipient_username = context.args
-    amount = float(amount_str)
+    try:
+        amount_str, recipient_username = context.args
+        amount = float(amount_str)
+        
+        recipient, _ = await Wallet.objects.get_or_create(
+            owner_username=recipient_username
+        )
+        issue = Issue(recipient=recipient, amount=amount)
 
-    recipient, _ = await Wallet.objects.get_or_create(
-        owner_username=recipient_username
-    )
-    await recipient.update(balance=recipient.balance + amount)
+        await recipient.update(balance=recipient.balance + amount)
+        await issue.save()
 
-    issue = Issue(recipient=recipient, amount=amount)
-    await issue.save()
+    except (ValueError, AsyncOrmException) as exception:
+        reply_text = ERROR_TEXT_PATTERN.format(
+            description=(
+                "No se pudieron emitir los justines. Por favor, revisá la "
+                "lista de parámetros y los valores que ingresaste."
+            )
+        )
+        logger.exception(
+            f"Something went wrong while issuing justines: {exception}."
+        )
 
-    reply_text = ISSUE_TEXT_PATTERN.format(
-        amount=amount,
-        recipient_username=recipient_username,
-    )
+    else:
+        reply_text = ISSUE_TEXT_PATTERN.format(
+            amount=amount,
+            recipient_username=recipient_username,
+        )
+        logger.info(f"{amount} justines issued to {recipient_username}")
+
     await update.message.reply_text(reply_text)
-    logger.info(f"{amount} justines issued to {recipient_username}")
+    
 
 
 async def list_transfers(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -115,33 +133,46 @@ async def list_transfers(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def transfer(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    sender_username = update.message.from_user.username
-    amount_str, recipient_username = context.args
-    amount = float(amount_str)
+    try:
+        sender_username = update.message.from_user.username
+        amount_str, recipient_username = context.args
+        amount = float(amount_str)
 
-    sender, _ = await Wallet.objects.get_or_create(
-        owner_username=sender_username
-    )
-    await sender.update(balance=sender.balance - amount)
+        sender, _ = await Wallet.objects.get_or_create(
+            owner_username=sender_username
+        )
+        recipient, _ = await Wallet.objects.get_or_create(
+            owner_username=recipient_username
+        )
+        transfer = Transfer(sender=sender, recipient=recipient, amount=amount)
 
-    recipient, _ = await Wallet.objects.get_or_create(
-        owner_username=recipient_username
-    )
-    await recipient.update(balance=recipient.balance + amount)
+        await sender.update(balance=sender.balance - amount)
+        await recipient.update(balance=recipient.balance + amount)
+        await transfer.save()
 
-    transfer = Transfer(sender=sender, recipient=recipient, amount=amount)
-    await transfer.save()
+    except (ValueError, AsyncOrmException) as exception:
+        reply_text = ERROR_TEXT_PATTERN.format(
+            description=(
+                "No se pudieron transferir los justines. Por favor, revisá la "
+                "lista de parámetros y los valores que ingresaste."
+            )
+        )
+        logger.exception(
+            f"Something went wrong while transferring justines: {exception}."
+        )
 
-    reply_text = TRANSFER_TEXT_PATTERN.format(
-        amount=amount,
-        sender_username=sender_username,
-        recipient_username=recipient_username,
-    )
+    else:
+        reply_text = TRANSFER_TEXT_PATTERN.format(
+            amount=amount,
+            sender_username=sender_username,
+            recipient_username=recipient_username,
+        )
+        logger.info(
+            f"{amount} justines transferred from {sender_username} to "
+            f"{recipient_username}"
+        )
+
     await update.message.reply_text(reply_text)
-    logger.info(
-        f"{amount} justines transferred from {sender_username} to "
-        f"{recipient_username}"
-    )
 
 
 if __name__ == "__main__":
