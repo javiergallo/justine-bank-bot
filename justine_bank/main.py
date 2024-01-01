@@ -19,6 +19,10 @@ WELCOME_TEXT_PATTERN = (
 )
 WALLET_TEXT_PATTERN = "{username}: {balance} justines"
 ISSUE_TEXT_PATTERN = "{amount} justines emitidos a {recipient_username}"
+TRANSFER_TEXT_PATTERN = (
+    "{amount} justines transferidos de {sender_username} a "
+    "{recipient_username}"
+)
 
 POLL_INTERVAL = 3
 
@@ -39,9 +43,11 @@ async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
     reply_text += "/help - mostrar esta lista de comandos.\n"
     if update.message.chat.type != "group":
         reply_text += "/list_wallets - listar billeteras.\n"
-        reply_text += "/list_issues - listar emisiones.\n"
-        reply_text += "/issue [amount][username] - emitir justines a un usuario.\n"
-        
+        reply_text += "/list_issues - listar emisiones realizadas.\n"
+        reply_text += "/issue [amount] [username] - emitir justines a un usuario.\n"
+        reply_text += "/list_transfers - listar transferencias realizadas.\n"
+    reply_text += "/transfer [amount] [username] - transferir justines a un usuario.\n"
+
     await update.message.reply_text(reply_text)
     logger.info("Help replied")
 
@@ -91,6 +97,53 @@ async def issue(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logger.info(f"{amount} justines issued to {recipient_username}")
 
 
+async def list_transfers(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    transfers = (
+        await Transfer.objects.select_related(["sender", "recipient"]).all()
+    )
+    reply_text = "\n".join(
+        TRANSFER_TEXT_PATTERN.format(
+            amount=transfer.amount,
+            sender_username=transfer.sender.owner_username,
+            recipient_username=transfer.recipient.owner_username,
+        )
+        for transfer in transfers
+    )
+
+    await update.message.reply_text(reply_text)
+    logger.info("Transfers listed")
+
+
+async def transfer(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    sender_username = update.message.from_user.username
+    amount_str, recipient_username = context.args
+    amount = float(amount_str)
+
+    sender, _ = await Wallet.objects.get_or_create(
+        owner_username=sender_username
+    )
+    await sender.update(balance=sender.balance - amount)
+
+    recipient, _ = await Wallet.objects.get_or_create(
+        owner_username=recipient_username
+    )
+    await recipient.update(balance=recipient.balance + amount)
+
+    transfer = Transfer(sender=sender, recipient=recipient, amount=amount)
+    await transfer.save()
+
+    reply_text = TRANSFER_TEXT_PATTERN.format(
+        amount=amount,
+        sender_username=sender_username,
+        recipient_username=recipient_username,
+    )
+    await update.message.reply_text(reply_text)
+    logger.info(
+        f"{amount} justines transferred from {sender_username} to "
+        f"{recipient_username}"
+    )
+
+
 if __name__ == "__main__":
     app = Application.builder().token(API_TOKEN).build()
 
@@ -99,6 +152,8 @@ if __name__ == "__main__":
     app.add_handler(CommandHandler("list_wallets", list_wallets))
     app.add_handler(CommandHandler("list_issues", list_issues))
     app.add_handler(CommandHandler("issue", issue))
+    app.add_handler(CommandHandler("list_transfers", list_transfers))
+    app.add_handler(CommandHandler("transfer", transfer))
 
     logger.info("Polling...")
     app.run_polling(poll_interval=POLL_INTERVAL)
