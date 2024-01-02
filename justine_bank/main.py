@@ -11,9 +11,8 @@ from telegram.ext import (
 from ormar.exceptions import AsyncOrmException
 
 from justine_bank.models import Issue, Transfer, Wallet
+from justine_bank.settings import config
 
-API_TOKEN = "6781101095:AAEYSlIPOQ4SDdn3zDxYs0UhtIwMZPIiHwg"
-USERNAME = "JustineBankBot"
 
 ERROR_TEXT_PATTERN = "Uy! Algo salió mal! {description} \U0001F974"
 WELCOME_TEXT_PATTERN = (
@@ -26,8 +25,6 @@ TRANSFER_TEXT_PATTERN = (
     "{amount} justines transferidos de {sender_username} a "
     "{recipient_username}"
 )
-
-POLL_INTERVAL = 3
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('abc')
@@ -176,7 +173,7 @@ async def transfer(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 if __name__ == "__main__":
-    app = Application.builder().token(API_TOKEN).build()
+    app = Application.builder().token(config.api_token).build()
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("help", help))
@@ -187,4 +184,4 @@ if __name__ == "__main__":
     app.add_handler(CommandHandler("transfer", transfer))
 
     logger.info("Polling...")
-    app.run_polling(poll_interval=POLL_INTERVAL)
+    app.run_polling(poll_interval=config.poll_interval)
