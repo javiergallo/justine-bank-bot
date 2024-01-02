@@ -1,4 +1,8 @@
-from pydantic import AnyUrl, BaseModel, BaseSettings, conint
+from typing import List
+
+from pydantic import AnyUrl, BaseModel, BaseSettings, conint, constr
+
+from justine_bank.constants import USERNAME_REGEX
 
 
 class DatabaseConfig(BaseModel):
@@ -8,6 +12,8 @@ class DatabaseConfig(BaseModel):
 class Config(BaseSettings):
     api_token: str
     username: str = "JustineBankBot"
+
+    staff_usernames: List[constr(regex=USERNAME_REGEX)] = []
 
     database_config: DatabaseConfig = DatabaseConfig()
 

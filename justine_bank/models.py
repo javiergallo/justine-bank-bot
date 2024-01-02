@@ -3,9 +3,8 @@ import sqlalchemy
 
 import ormar
 
+from justine_bank.constants import USERNAME_REGEX
 from justine_bank.settings import config
-
-USERNAME_REGEX = r"^(?=(?:[0-9_]*[a-z]){3})[a-z0-9_]{5,}$"
 
 database = databases.Database(config.database_config.url)
 metadata = sqlalchemy.MetaData()
