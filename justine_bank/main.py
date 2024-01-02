@@ -1,15 +1,11 @@
 import logging
 
 from telegram import Update
-from telegram.ext import (
-    Application,
-    CommandHandler,
-    ContextTypes,
-    MessageHandler,
-)
+from telegram.ext import Application, ContextTypes
 
 from ormar.exceptions import AsyncOrmException
 
+from justine_bank.commands import Menu
 from justine_bank.constants import (
     ERROR_TEXT_PATTERN,
     ISSUE_TEXT_PATTERN,
@@ -24,7 +20,13 @@ from justine_bank.utils import clean_username
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('abc')
 
+menu = Menu()
 
+
+@menu.command(
+    "start",
+    help_text="Iniciar/reiniciar nuestra conversación (nada sorprendente)"
+)
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     username = update.message.from_user.username
     reply_text = WELCOME_TEXT_PATTERN.format(username=username)
@@ -32,25 +34,28 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logger.info("App started")
 
 
+@menu.command(
+    "help",
+    help_text="Mostrar la ayuda (i.e., esta lista de comandos)"
+)
 async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
     username = update.message.from_user.username
 
     reply_text = ""
-    reply_text += "/start - iniciar/reiniciar nuestra conversación (nada sorprendente).\n"
-    reply_text += "/help - mostrar la ayuda (i.e., esta lista de comandos).\n"
-    if username in config.staff_usernames:
-        reply_text += "/list_wallets - listar todas las billeteras.\n"
-        reply_text += "/list_issues - listar todas las emisiones realizadas.\n"
-        reply_text += "/issue [amount] [username] - emitir justines a un usuario.\n"
-        reply_text += "/list_transfers - listar todas las transferencias realizadas.\n"
-    else:
-        reply_text += "/list_wallets - listar tus billeteras.\n"
-        reply_text += "/list_transfers - listar tus transferencias realizadas.\n"
-    reply_text += "/transfer [amount] [username] - transferir justines a un usuario.\n"
+    for statement in menu:
+        if not statement.exclusive or username in config.staff_usernames:
+            cmd_name = next(iter(statement.handler.commands))
+            arg_names_str = ' '.join(f"[{name}]" for name in statement.arg_names)
+            reply_text += f"/{cmd_name} {arg_names_str} - {statement.help_text}\n"
 
     await update.message.reply_text(reply_text)
     logger.info("Help replied")
 
+
+@menu.command(
+    "listwallets",
+    help_text="Listar billeteras"
+)
 async def list_wallets(update: Update, context: ContextTypes.DEFAULT_TYPE):
     username = update.message.from_user.username
 
@@ -70,6 +75,12 @@ async def list_wallets(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(reply_text)
     logger.info("Wallets listed")
 
+
+@menu.command(
+    "listissues",
+    help_text="Listar emisiones realizadas",
+    exclusive=True
+)
 async def list_issues(update: Update, context: ContextTypes.DEFAULT_TYPE):
     username = update.message.from_user.username
 
@@ -86,6 +97,13 @@ async def list_issues(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(reply_text)
         logger.info("Issues listed")
 
+
+@menu.command(
+    "issue",
+    arg_names=("amount", "username"),
+    help_text="Emitir justines a un usuario",
+    exclusive=True
+)
 async def issue(update: Update, context: ContextTypes.DEFAULT_TYPE):
     username = update.message.from_user.username
 
@@ -123,6 +141,10 @@ async def issue(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(reply_text)
 
 
+@menu.command(
+    "listtransfers",
+    help_text="Listar transferencias realizadas"
+)
 async def list_transfers(update: Update, context: ContextTypes.DEFAULT_TYPE):
     username = update.message.from_user.username
 
@@ -150,6 +172,11 @@ async def list_transfers(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logger.info("Transfers listed")
 
 
+@menu.command(
+    "transfer",
+    arg_names=("amount", "username"),
+    help_text="Transferir justines a un usuario"
+)
 async def transfer(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         sender_username = update.message.from_user.username
@@ -196,13 +223,8 @@ async def transfer(update: Update, context: ContextTypes.DEFAULT_TYPE):
 if __name__ == "__main__":
     app = Application.builder().token(config.api_token).build()
 
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("help", help))
-    app.add_handler(CommandHandler("list_wallets", list_wallets))
-    app.add_handler(CommandHandler("list_issues", list_issues))
-    app.add_handler(CommandHandler("issue", issue))
-    app.add_handler(CommandHandler("list_transfers", list_transfers))
-    app.add_handler(CommandHandler("transfer", transfer))
+    for statement in menu:
+        app.add_handler(statement.handler)
 
     logger.info("Polling...")
     app.run_polling(poll_interval=config.poll_interval)
