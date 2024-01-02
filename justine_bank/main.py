@@ -38,21 +38,32 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    username = update.message.from_user.username
+
     reply_text = ""
     reply_text += "/start - comenzar.\n"
     reply_text += "/help - mostrar esta lista de comandos.\n"
-    if update.message.chat.type != "group":
-        reply_text += "/list_wallets - listar billeteras.\n"
-        reply_text += "/list_issues - listar emisiones realizadas.\n"
+    if username in config.staff_usernames:
+        reply_text += "/list_wallets - listar todas las billeteras.\n"
+        reply_text += "/list_issues - listar todas las emisiones realizadas.\n"
         reply_text += "/issue [amount] [username] - emitir justines a un usuario.\n"
-        reply_text += "/list_transfers - listar transferencias realizadas.\n"
+        reply_text += "/list_transfers - listar todas las transferencias realizadas.\n"
+    else:
+        reply_text += "/list_wallets - listar tus billeteras.\n"
+        reply_text += "/list_transfers - listar tus transferencias realizadas.\n"
     reply_text += "/transfer [amount] [username] - transferir justines a un usuario.\n"
 
     await update.message.reply_text(reply_text)
     logger.info("Help replied")
 
 async def list_wallets(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    wallets = await Wallet.objects.all()
+    username = update.message.from_user.username
+
+    if username in config.staff_usernames:
+        wallets = await Wallet.objects.all()
+    else:
+        wallets = await Wallet.objects.filter(owner_username=username).all()
+
     reply_text = "\n".join(
         WALLET_TEXT_PATTERN.format(
             username=wallet.owner_username,
@@ -65,57 +76,72 @@ async def list_wallets(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logger.info("Wallets listed")
 
 async def list_issues(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    issues = await Issue.objects.select_related("recipient").all()
-    reply_text = "\n".join(
-        ISSUE_TEXT_PATTERN.format(
-            amount=issue.amount,
-            recipient_username=issue.recipient.owner_username,
-        )
-        for issue in issues
-    )
+    username = update.message.from_user.username
 
-    await update.message.reply_text(reply_text)
-    logger.info("Issues listed")
+    if username in config.staff_usernames:
+        issues = await Issue.objects.select_related("recipient").all()
+        reply_text = "\n".join(
+            ISSUE_TEXT_PATTERN.format(
+                amount=issue.amount,
+                recipient_username=issue.recipient.owner_username,
+            )
+            for issue in issues
+        )
+
+        await update.message.reply_text(reply_text)
+        logger.info("Issues listed")
 
 async def issue(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    try:
-        amount_str, recipient_username = context.args
-        amount = float(amount_str)
-        
-        recipient, _ = await Wallet.objects.get_or_create(
-            owner_username=recipient_username
-        )
-        issue = Issue(recipient=recipient, amount=amount)
+    username = update.message.from_user.username
 
-        await recipient.update(balance=recipient.balance + amount)
-        await issue.save()
-
-    except (ValueError, AsyncOrmException) as exception:
-        reply_text = ERROR_TEXT_PATTERN.format(
-            description=(
-                "No se pudieron emitir los justines. Por favor, revisá la "
-                "lista de parámetros y los valores que ingresaste."
+    if username in config.staff_usernames:
+        try:
+            amount_str, recipient_username = context.args
+            amount = float(amount_str)
+            
+            recipient, _ = await Wallet.objects.get_or_create(
+                owner_username=recipient_username
             )
-        )
-        logger.exception(
-            f"Something went wrong while issuing justines: {exception}."
-        )
+            issue = Issue(recipient=recipient, amount=amount)
 
-    else:
-        reply_text = ISSUE_TEXT_PATTERN.format(
-            amount=amount,
-            recipient_username=recipient_username,
-        )
-        logger.info(f"{amount} justines issued to {recipient_username}")
+            await recipient.update(balance=recipient.balance + amount)
+            await issue.save()
 
-    await update.message.reply_text(reply_text)
-    
+        except (ValueError, AsyncOrmException) as exception:
+            reply_text = ERROR_TEXT_PATTERN.format(
+                description=(
+                    "No se pudieron emitir los justines. Por favor, revisá la "
+                    "lista de parámetros y los valores que ingresaste."
+                )
+            )
+            logger.exception(
+                f"Something went wrong while issuing justines: {exception}."
+            )
+
+        else:
+            reply_text = ISSUE_TEXT_PATTERN.format(
+                amount=amount,
+                recipient_username=recipient_username,
+            )
+            logger.info(f"{amount} justines issued to {recipient_username}")
+
+        await update.message.reply_text(reply_text)
 
 
 async def list_transfers(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    transfers = (
-        await Transfer.objects.select_related(["sender", "recipient"]).all()
-    )
+    username = update.message.from_user.username
+
+    if username in config.staff_usernames:
+        transfers = (
+            await Transfer.objects.select_related(["sender", "recipient"]).all()
+        )
+    else:
+        transfers = (
+            await Transfer.objects.select_related(["sender", "recipient"]).filter(
+                sender__owner_username=username
+            ).all()
+        )
+
     reply_text = "\n".join(
         TRANSFER_TEXT_PATTERN.format(
             amount=transfer.amount,
