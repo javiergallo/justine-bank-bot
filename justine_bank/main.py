@@ -10,21 +10,15 @@ from telegram.ext import (
 
 from ormar.exceptions import AsyncOrmException
 
+from justine_bank.constants import (
+    ERROR_TEXT_PATTERN,
+    ISSUE_TEXT_PATTERN,
+    TRANSFER_TEXT_PATTERN,
+    WALLET_TEXT_PATTERN,
+    WELCOME_TEXT_PATTERN,
+)
 from justine_bank.models import Issue, Transfer, Wallet
 from justine_bank.settings import config
-
-
-ERROR_TEXT_PATTERN = "Uy! Algo salió mal! {description} \U0001F974"
-WELCOME_TEXT_PATTERN = (
-    "¡Hola @{username}! Soy el bot administrador del Banco de Justines. Enviá "
-    "/help si querés que te cuente qué se puede hacer en el Banco de Justines."
-)
-WALLET_TEXT_PATTERN = "@{username}: {balance} justines"
-ISSUE_TEXT_PATTERN = "{amount} justines emitidos a @{recipient_username}"
-TRANSFER_TEXT_PATTERN = (
-    "{amount} justines transferidos de @{sender_username} a "
-    "@{recipient_username}"
-)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('abc')
