@@ -16,14 +16,14 @@ from justine_bank.settings import config
 
 ERROR_TEXT_PATTERN = "Uy! Algo salió mal! {description} \U0001F974"
 WELCOME_TEXT_PATTERN = (
-    "¡Hola {username}! Soy el bot administrador del Banco de Justines. Enviá "
+    "¡Hola @{username}! Soy el bot administrador del Banco de Justines. Enviá "
     "/help si querés que te cuente qué se puede hacer en el Banco de Justines."
 )
-WALLET_TEXT_PATTERN = "{username}: {balance} justines"
-ISSUE_TEXT_PATTERN = "{amount} justines emitidos a {recipient_username}"
+WALLET_TEXT_PATTERN = "@{username}: {balance} justines"
+ISSUE_TEXT_PATTERN = "{amount} justines emitidos a @{recipient_username}"
 TRANSFER_TEXT_PATTERN = (
-    "{amount} justines transferidos de {sender_username} a "
-    "{recipient_username}"
+    "{amount} justines transferidos de @{sender_username} a "
+    "@{recipient_username}"
 )
 
 logging.basicConfig(level=logging.INFO)
