@@ -35,8 +35,8 @@ async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
     username = update.message.from_user.username
 
     reply_text = ""
-    reply_text += "/start - comenzar.\n"
-    reply_text += "/help - mostrar esta lista de comandos.\n"
+    reply_text += "/start - iniciar/reiniciar nuestra conversación (nada sorprendente).\n"
+    reply_text += "/help - mostrar la ayuda (i.e., esta lista de comandos).\n"
     if username in config.staff_usernames:
         reply_text += "/list_wallets - listar todas las billeteras.\n"
         reply_text += "/list_issues - listar todas las emisiones realizadas.\n"
