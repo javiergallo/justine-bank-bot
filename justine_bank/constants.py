@@ -1,4 +1,4 @@
-USERNAME_REGEX = r"^(?=(?:[0-9_]*[a-z]){3})[a-z0-9_]{5,}$"
+USERNAME_REGEX = r"^(?=(?:[0-9_]*[A-Za-z]){3})[A-Za-z0-9_]{5,}$"
 
 ERROR_TEXT_PATTERN = "Uy! Algo salió mal! {description} \U0001F974"
 WELCOME_TEXT_PATTERN = (
