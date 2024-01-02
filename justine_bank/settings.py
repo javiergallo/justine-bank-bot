@@ -11,7 +11,6 @@ class DatabaseConfig(BaseModel):
 
 class Config(BaseSettings):
     api_token: str
-    username: str = "JustineBankBot"
 
     staff_usernames: List[constr(regex=USERNAME_REGEX)] = []
 
