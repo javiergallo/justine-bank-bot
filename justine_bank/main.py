@@ -19,6 +19,7 @@ from justine_bank.constants import (
 )
 from justine_bank.models import Issue, Transfer, Wallet
 from justine_bank.settings import config
+from justine_bank.utils import clean_username
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('abc')
@@ -90,8 +91,8 @@ async def issue(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if username in config.staff_usernames:
         try:
-            amount_str, recipient_username = context.args
-            amount = float(amount_str)
+            amount = float(context.args[0])
+            recipient_username = clean_username(context.args[1])
             
             recipient, _ = await Wallet.objects.get_or_create(
                 owner_username=recipient_username
@@ -101,7 +102,7 @@ async def issue(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await recipient.update(balance=recipient.balance + amount)
             await issue.save()
 
-        except (ValueError, AsyncOrmException) as exception:
+        except (IndexError, ValueError, AsyncOrmException) as exception:
             reply_text = ERROR_TEXT_PATTERN.format(
                 description=(
                     "No se pudieron emitir los justines. Por favor, revisá la "
@@ -152,8 +153,8 @@ async def list_transfers(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def transfer(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         sender_username = update.message.from_user.username
-        amount_str, recipient_username = context.args
-        amount = float(amount_str)
+        amount = float(context.args[0])
+        recipient_username = clean_username(context.args[1])
 
         sender, _ = await Wallet.objects.get_or_create(
             owner_username=sender_username
@@ -167,7 +168,7 @@ async def transfer(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await recipient.update(balance=recipient.balance + amount)
         await transfer.save()
 
-    except (ValueError, AsyncOrmException) as exception:
+    except (IndexError, ValueError, AsyncOrmException) as exception:
         reply_text = ERROR_TEXT_PATTERN.format(
             description=(
                 "No se pudieron transferir los justines. Por favor, revisá la "
