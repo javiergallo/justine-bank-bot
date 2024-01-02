@@ -9,9 +9,9 @@ from justine_bank.commands import Menu
 from justine_bank.constants import (
     ERROR_TEXT_PATTERN,
     ISSUE_TEXT_PATTERN,
+    START_TEXT_PATTERN,
     TRANSFER_TEXT_PATTERN,
     WALLET_TEXT_PATTERN,
-    WELCOME_TEXT_PATTERN,
 )
 from justine_bank.models import Issue, Transfer, Wallet
 from justine_bank.settings import config
@@ -33,7 +33,7 @@ menu = Menu()
 )
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     username = update.message.from_user.username
-    reply_text = WELCOME_TEXT_PATTERN.format(username=username)
+    reply_text = START_TEXT_PATTERN.format(username=username)
     await update.message.reply_text(reply_text)
     logger.info("App started")
 
@@ -69,10 +69,7 @@ async def list_wallets(update: Update, context: ContextTypes.DEFAULT_TYPE):
         wallets = await Wallet.objects.filter(owner_username=username).all()
 
     reply_text = "\n".join(
-        WALLET_TEXT_PATTERN.format(
-            username=wallet.owner_username,
-            balance=wallet.balance,
-        )
+        WALLET_TEXT_PATTERN.format(wallet=wallet)
         for wallet in wallets
     )
 
@@ -91,11 +88,7 @@ async def list_issues(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if username in config.staff_usernames:
         issues = await Issue.objects.select_related("recipient").all()
         reply_text = "\n".join(
-            ISSUE_TEXT_PATTERN.format(
-                amount=issue.amount,
-                recipient_username=issue.recipient.owner_username,
-            )
-            for issue in issues
+            ISSUE_TEXT_PATTERN.format(issue=issue) for issue in issues
         )
 
         await update.message.reply_text(reply_text)
@@ -136,10 +129,7 @@ async def issue(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
 
         else:
-            reply_text = ISSUE_TEXT_PATTERN.format(
-                amount=amount,
-                recipient_username=recipient_username,
-            )
+            reply_text = ISSUE_TEXT_PATTERN.format(issue=issue)
             logger.info(f"{amount} justines issued to {recipient_username}")
 
         await update.message.reply_text(reply_text)
@@ -164,11 +154,7 @@ async def list_transfers(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
 
     reply_text = "\n".join(
-        TRANSFER_TEXT_PATTERN.format(
-            amount=transfer.amount,
-            sender_username=transfer.sender.owner_username,
-            recipient_username=transfer.recipient.owner_username,
-        )
+        TRANSFER_TEXT_PATTERN.format(transfer=transfer)
         for transfer in transfers
     )
 
@@ -211,11 +197,7 @@ async def transfer(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
 
     else:
-        reply_text = TRANSFER_TEXT_PATTERN.format(
-            amount=amount,
-            sender_username=sender_username,
-            recipient_username=recipient_username,
-        )
+        reply_text = TRANSFER_TEXT_PATTERN.format(transfer=transfer)
         logger.info(
             f"{amount} justines transferred from {sender_username} to "
             f"{recipient_username}"

@@ -3,6 +3,8 @@ import sqlalchemy
 
 import ormar
 
+from datetime import datetime
+
 from justine_bank.constants import USERNAME_REGEX
 from justine_bank.settings import config
 
@@ -17,6 +19,12 @@ class Wallet(ormar.Model):
 
     id: int = ormar.Integer(primary_key=True)
 
+    creation_datetime: datetime = ormar.DateTime(default=datetime.utcnow)
+    update_datetime: datetime = ormar.DateTime(
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+    )
+
     owner_username: str = ormar.String(max_length=120, regex=USERNAME_REGEX)
     balance: float = ormar.Float(default=0.0, minimum=0.0)
 
@@ -26,8 +34,9 @@ class Issue(ormar.Model):
         database = database
         metadata = metadata
 
-
     id: int = ormar.Integer(primary_key=True)
+
+    creation_datetime: datetime = ormar.DateTime(default=datetime.utcnow)
 
     recipient: Wallet = ormar.ForeignKey(Wallet, nullable=False)
     amount: float = ormar.Float(minimum=0.0)
@@ -38,8 +47,9 @@ class Transfer(ormar.Model):
         database = database
         metadata = metadata
 
-
     id: int = ormar.Integer(primary_key=True)
+
+    creation_datetime: datetime = ormar.DateTime(default=datetime.utcnow)
 
     sender: Wallet = ormar.ForeignKey(
         Wallet, nullable=False, related_name="debits"
