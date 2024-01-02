@@ -17,7 +17,11 @@ from justine_bank.models import Issue, Transfer, Wallet
 from justine_bank.settings import config
 from justine_bank.utils import clean_username
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    format='%(asctime)s %(levelname)-8s %(message)s',
+    level=logging.INFO,
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
 logger = logging.getLogger('abc')
 
 menu = Menu()
