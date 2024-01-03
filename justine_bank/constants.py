@@ -1,5 +1,6 @@
 USERNAME_REGEX = r"^(?=(?:[0-9_]*[A-Za-z]){3})[A-Za-z0-9_]{5,}$"
 
+NO_ITEMS_TEXT_PATTERN = "Por lo que veo, no hay {items_type}. \U0001F937"
 ERROR_TEXT_PATTERN = "Uy! Algo salió mal! {description} \U0001F974"
 START_TEXT_PATTERN = (
     "¡Hola @{username}! Soy el bot administrador del Banco de Justines. Enviá "

@@ -9,6 +9,7 @@ from justine_bank.commands import Menu
 from justine_bank.constants import (
     ERROR_TEXT_PATTERN,
     ISSUE_TEXT_PATTERN,
+    NO_ITEMS_TEXT_PATTERN,
     START_TEXT_PATTERN,
     TRANSFER_TEXT_PATTERN,
     WALLET_TEXT_PATTERN,
@@ -68,10 +69,13 @@ async def list_wallets(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         wallets = await Wallet.objects.filter(owner_username=username).all()
 
-    reply_text = "\n".join(
-        WALLET_TEXT_PATTERN.format(wallet=wallet)
-        for wallet in wallets
-    )
+    if wallets:
+        reply_text = "\n".join(
+            WALLET_TEXT_PATTERN.format(wallet=wallet)
+            for wallet in wallets
+        )
+    else:
+        reply_text = NO_ITEMS_TEXT_PATTERN.format(items_type="billeteras")
 
     await update.message.reply_text(reply_text)
     logger.info("Wallets listed")
@@ -87,9 +91,13 @@ async def list_issues(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if username in config.staff_usernames:
         issues = await Issue.objects.select_related("recipient").all()
-        reply_text = "\n".join(
-            ISSUE_TEXT_PATTERN.format(issue=issue) for issue in issues
-        )
+
+        if issues:
+            reply_text = "\n".join(
+                ISSUE_TEXT_PATTERN.format(issue=issue) for issue in issues
+            )
+        else:
+            reply_text = NO_ITEMS_TEXT_PATTERN.format(items_type="emisiones")
 
         await update.message.reply_text(reply_text)
         logger.info("Issues listed")
@@ -153,10 +161,13 @@ async def list_transfers(update: Update, context: ContextTypes.DEFAULT_TYPE):
             ).all()
         )
 
-    reply_text = "\n".join(
-        TRANSFER_TEXT_PATTERN.format(transfer=transfer)
-        for transfer in transfers
-    )
+    if transfers:
+        reply_text = "\n".join(
+            TRANSFER_TEXT_PATTERN.format(transfer=transfer)
+            for transfer in transfers
+        )
+    else:
+        reply_text = NO_ITEMS_TEXT_PATTERN.format(items_type="transferencias")
 
     await update.message.reply_text(reply_text)
     logger.info("Transfers listed")
