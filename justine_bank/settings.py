@@ -10,7 +10,7 @@ class DatabaseConfig(BaseModel):
 
 
 class Config(BaseSettings):
-    api_token: str
+    api_token: str = ""
 
     staff_usernames: List[constr(regex=USERNAME_REGEX)] = []
 

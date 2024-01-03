@@ -1,4 +1,7 @@
 import logging
+import os
+
+import typer
 
 from telegram import Update
 from telegram.ext import Application, ContextTypes
@@ -218,7 +221,8 @@ async def transfer(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 if __name__ == "__main__":
-    app = Application.builder().token(config.api_token).build()
+    api_token = config.api_token or typer.prompt("API token", hide_input=True)
+    app = Application.builder().token(api_token).build()
 
     for statement in menu:
         app.add_handler(statement.handler)
