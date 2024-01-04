@@ -11,11 +11,8 @@ class DatabaseConfig(BaseModel):
 
 class Config(BaseSettings):
     api_token: str = ""
-
     staff_usernames: List[constr(regex=USERNAME_REGEX)] = []
-
     database_config: DatabaseConfig = DatabaseConfig()
-
     poll_interval: conint(gt=0) = 3
 
 

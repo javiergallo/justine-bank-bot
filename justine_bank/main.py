@@ -1,5 +1,4 @@
 import logging
-import os
 
 import typer
 
@@ -17,6 +16,7 @@ from justine_bank.constants import (
     TRANSFER_TEXT_PATTERN,
     WALLET_TEXT_PATTERN,
 )
+from justine_bank.localization import _
 from justine_bank.models import Issue, Transfer, Wallet
 from justine_bank.settings import config
 from justine_bank.utils import clean_username
@@ -33,18 +33,18 @@ menu = Menu()
 
 @menu.command(
     "start",
-    help_text="Iniciar/reiniciar nuestra conversación (nada sorprendente)"
+    help_text=_("Start or restart this conversation")
 )
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     username = update.message.from_user.username
     reply_text = START_TEXT_PATTERN.format(username=username)
     await update.message.reply_text(reply_text)
-    logger.info("App started")
+    logger.info(_("App started"))
 
 
 @menu.command(
     "help",
-    help_text="Mostrar la ayuda (i.e., esta lista de comandos)"
+    help_text=_("Show help")
 )
 async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
     username = update.message.from_user.username
@@ -57,12 +57,12 @@ async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
             reply_text += f"/{cmd_name} {arg_names_str} - {statement.help_text}\n"
 
     await update.message.reply_text(reply_text)
-    logger.info("Help replied")
+    logger.info(_("Help replied"))
 
 
 @menu.command(
     "listwallets",
-    help_text="Listar billeteras"
+    help_text=_("List wallets")
 )
 async def list_wallets(update: Update, context: ContextTypes.DEFAULT_TYPE):
     username = update.message.from_user.username
@@ -81,12 +81,12 @@ async def list_wallets(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_text = NO_ITEMS_TEXT_PATTERN.format(items_type="billeteras")
 
     await update.message.reply_text(reply_text)
-    logger.info("Wallets listed")
+    logger.info(_("Wallets listed"))
 
 
 @menu.command(
     "listissues",
-    help_text="Listar emisiones realizadas",
+    help_text=_("List issues"),
     exclusive=True
 )
 async def list_issues(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -100,16 +100,16 @@ async def list_issues(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 ISSUE_TEXT_PATTERN.format(issue=issue) for issue in issues
             )
         else:
-            reply_text = NO_ITEMS_TEXT_PATTERN.format(items_type="emisiones")
+            reply_text = NO_ITEMS_TEXT_PATTERN.format(items_type=_("issues"))
 
         await update.message.reply_text(reply_text)
-        logger.info("Issues listed")
+        logger.info(_("Issues listed"))
 
 
 @menu.command(
     "issue",
     arg_names=("amount", "username"),
-    help_text="Emitir justines a un usuario",
+    help_text=_("Issue justines for a user"),
     exclusive=True
 )
 async def issue(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -120,7 +120,7 @@ async def issue(update: Update, context: ContextTypes.DEFAULT_TYPE):
             amount = float(context.args[0])
             recipient_username = clean_username(context.args[1])
             
-            recipient, _ = await Wallet.objects.get_or_create(
+            recipient, created = await Wallet.objects.get_or_create(
                 owner_username=recipient_username
             )
             issue = Issue(recipient=recipient, amount=amount)
@@ -130,25 +130,29 @@ async def issue(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         except (IndexError, ValueError, AsyncOrmException) as exception:
             reply_text = ERROR_TEXT_PATTERN.format(
-                description=(
-                    "No se pudieron emitir los justines. Por favor, revisá la "
-                    "lista de parámetros y los valores que ingresaste."
-                )
+                description=_("Justines couldn't be issued. Review input.")
             )
             logger.exception(
-                f"Something went wrong while issuing justines: {exception}."
+                _("Something went wrong while issuing justines: {exception}.").format(
+                    exception=exception
+                )
             )
 
         else:
             reply_text = ISSUE_TEXT_PATTERN.format(issue=issue)
-            logger.info(f"{amount} justines issued to {recipient_username}")
+            logger.info(
+                _("{amount} justines issued to {recipient_username}").format(
+                    amount=amount,
+                    recipient_username=recipient_username,
+                )
+            )
 
         await update.message.reply_text(reply_text)
 
 
 @menu.command(
     "listtransfers",
-    help_text="Listar transferencias realizadas"
+    help_text=_("List transfers")
 )
 async def list_transfers(update: Update, context: ContextTypes.DEFAULT_TYPE):
     username = update.message.from_user.username
@@ -170,16 +174,16 @@ async def list_transfers(update: Update, context: ContextTypes.DEFAULT_TYPE):
             for transfer in transfers
         )
     else:
-        reply_text = NO_ITEMS_TEXT_PATTERN.format(items_type="transferencias")
+        reply_text = NO_ITEMS_TEXT_PATTERN.format(items_type=_("transfers"))
 
     await update.message.reply_text(reply_text)
-    logger.info("Transfers listed")
+    logger.info(_("Transfers listed"))
 
 
 @menu.command(
     "transfer",
     arg_names=("amount", "username"),
-    help_text="Transferir justines a un usuario"
+    help_text=_("Transfer justines to a user")
 )
 async def transfer(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
@@ -187,10 +191,10 @@ async def transfer(update: Update, context: ContextTypes.DEFAULT_TYPE):
         amount = float(context.args[0])
         recipient_username = clean_username(context.args[1])
 
-        sender, _ = await Wallet.objects.get_or_create(
+        sender, created = await Wallet.objects.get_or_create(
             owner_username=sender_username
         )
-        recipient, _ = await Wallet.objects.get_or_create(
+        recipient, created = await Wallet.objects.get_or_create(
             owner_username=recipient_username
         )
         transfer = Transfer(sender=sender, recipient=recipient, amount=amount)
@@ -201,31 +205,33 @@ async def transfer(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     except (IndexError, ValueError, AsyncOrmException) as exception:
         reply_text = ERROR_TEXT_PATTERN.format(
-            description=(
-                "No se pudieron transferir los justines. Por favor, revisá la "
-                "lista de parámetros y los valores que ingresaste."
-            )
+            description=_("Justines couldn't be transfered. Review input.")
         )
         logger.exception(
-            f"Something went wrong while transferring justines: {exception}."
+            _("Something went wrong while transferring justines: {exception}.").format(
+                exception=exception
+            )
         )
 
     else:
         reply_text = TRANSFER_TEXT_PATTERN.format(transfer=transfer)
         logger.info(
-            f"{amount} justines transferred from {sender_username} to "
-            f"{recipient_username}"
+            _("{amount} justines transferred from {sender_username} to {recipient_username}").format(
+                amount=amount,
+                sender_username=sender_username,
+                recipient_username=recipient_username,
+            )
         )
 
     await update.message.reply_text(reply_text)
 
 
 if __name__ == "__main__":
-    api_token = config.api_token or typer.prompt("API token", hide_input=True)
+    api_token = config.api_token or typer.prompt(_("API token"), hide_input=True)
     app = Application.builder().token(api_token).build()
 
     for statement in menu:
         app.add_handler(statement.handler)
 
-    logger.info("Polling...")
+    logger.info(_("Polling..."))
     app.run_polling(poll_interval=config.poll_interval)
