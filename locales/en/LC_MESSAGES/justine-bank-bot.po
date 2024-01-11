@@ -14,6 +14,11 @@ msgstr "App started"
 msgid "Show help"
 msgstr "Show some help -- basically, the list of commands"
 
+#: justine_bank/main.py:52
+msgid "List of commands:"
+msgstr ""
+"Glad to help! You can tell me what to do by sending one of these commands:"
+
 #: justine_bank/main.py:60
 msgid "Help replied"
 msgstr "Help replied"

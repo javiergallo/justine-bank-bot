@@ -49,7 +49,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
     username = update.message.from_user.username
 
-    reply_text = ""
+    reply_text = _("List of commands:") + "\n\n"
     for statement in menu:
         if not statement.exclusive or username in config.staff_usernames:
             cmd_name = next(iter(statement.handler.commands))

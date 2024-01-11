@@ -14,6 +14,12 @@ msgstr "App iniciada"
 msgid "Show help"
 msgstr "Mostrar la ayuda -- básicamente, esta lista de comandos"
 
+#: justine_bank/main.py:52
+msgid "List of commands:"
+msgstr ""
+"¡Con gusto te ayudo! Podés enviarme uno de estos comandos para indicarme "
+"qué debo hacer:"
+
 #: justine_bank/main.py:60
 msgid "Help replied"
 msgstr "Help replied"
