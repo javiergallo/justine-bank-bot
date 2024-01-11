@@ -51,7 +51,7 @@ msgstr "Wallet shown"
 
 #: justine_bank/main.py:89
 msgid "List issues"
-msgstr "Listar emisiones registradas -- incluyendo monto and beneficiarix"
+msgstr "Listar emisiones registradas -- incluyendo monto y beneficiarix"
 
 #: justine_bank/main.py:103
 msgid "issues"
