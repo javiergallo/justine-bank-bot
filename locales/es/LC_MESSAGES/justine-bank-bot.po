@@ -41,6 +41,14 @@ msgstr "Listar billeteras -- incluyendo propietarix y saldo"
 msgid "Wallets listed"
 msgstr "Wallets listed"
 
+#: justine_bank/main.py:93
+msgid "Show wallet"
+msgstr "Mostrar el contenido de tu billetera"
+
+#: justine_bank/main.py:104
+msgid "Wallet shown"
+msgstr "Wallet shown"
+
 #: justine_bank/main.py:89
 msgid "List issues"
 msgstr "Listar emisiones registradas -- incluyendo monto and beneficiarix"

@@ -67,26 +67,41 @@ async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 @menu.command(
     "listwallets",
-    help_text=_("List wallets")
+    help_text=_("List wallets"),
+    exclusive=True,
 )
 async def list_wallets(update: Update, context: ContextTypes.DEFAULT_TYPE):
     username = update.message.from_user.username
 
     if username in config.staff_usernames:
         wallets = await Wallet.objects.all()
-    else:
-        wallets = await Wallet.objects.filter(owner_username=username).all()
 
-    if wallets:
-        reply_text = "\n".join(
-            WALLET_TEXT_PATTERN.format(wallet=wallet)
-            for wallet in wallets
-        )
-    else:
-        reply_text = NO_ITEMS_TEXT_PATTERN.format(items_type="billeteras")
+        if wallets:
+            reply_text = "\n".join(
+                WALLET_TEXT_PATTERN.format(wallet=wallet)
+                for wallet in wallets
+            )
+        else:
+            reply_text = NO_ITEMS_TEXT_PATTERN.format(items_type="billeteras")
+
+        await update.message.reply_text(reply_text)
+        logger.info(_("Wallets listed"))
+
+
+@menu.command(
+    "showwallet",
+    help_text=_("Show wallet"),
+)
+async def show_wallet(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    username = update.message.from_user.username
+    wallet, created = await Wallet.objects.get_or_create(
+        owner_username=username
+    )
+
+    reply_text = WALLET_TEXT_PATTERN.format(wallet=wallet)
 
     await update.message.reply_text(reply_text)
-    logger.info(_("Wallets listed"))
+    logger.info(_("Wallet shown"))
 
 
 @menu.command(

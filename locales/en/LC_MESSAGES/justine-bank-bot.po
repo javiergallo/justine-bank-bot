@@ -40,6 +40,14 @@ msgstr "List wallets -- including owner and balance"
 msgid "Wallets listed"
 msgstr "Wallets listed"
 
+#: justine_bank/main.py:93
+msgid "Show wallet"
+msgstr "Show the contents of your wallet"
+
+#: justine_bank/main.py:104
+msgid "Wallet shown"
+msgstr "Wallet shown"
+
 #: justine_bank/main.py:89
 msgid "List issues"
 msgstr "List registered issues -- including amount and recipient"
