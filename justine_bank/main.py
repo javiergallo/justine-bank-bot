@@ -54,9 +54,14 @@ async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if not statement.exclusive or username in config.staff_usernames:
             cmd_name = next(iter(statement.handler.commands))
             arg_names_str = ' '.join(f"[{name}]" for name in statement.arg_names)
-            reply_text += f"/{cmd_name} {arg_names_str} - {statement.help_text}\n"
+            reply_text += f"/{cmd_name} {arg_names_str}\n{statement.help_text}\n"
+            if statement.example:
+                reply_text += _("*For example*:\n{example}\n").format(
+                    example=statement.example
+                )
+            reply_text += "\n"
 
-    await update.message.reply_text(reply_text)
+    await update.message.reply_text(reply_text, parse_mode='Markdown')
     logger.info(_("Help replied"))
 
 
@@ -110,6 +115,7 @@ async def list_issues(update: Update, context: ContextTypes.DEFAULT_TYPE):
     "issue",
     arg_names=("amount", "username"),
     help_text=_("Issue justines for a user"),
+    example=_("`/issue 300 @javier_rooster`"),
     exclusive=True
 )
 async def issue(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -183,7 +189,8 @@ async def list_transfers(update: Update, context: ContextTypes.DEFAULT_TYPE):
 @menu.command(
     "transfer",
     arg_names=("amount", "username"),
-    help_text=_("Transfer justines to a user")
+    help_text=_("Transfer justines to a user"),
+    example=_("`/transfer 300 @javier_rooster`"),
 )
 async def transfer(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:

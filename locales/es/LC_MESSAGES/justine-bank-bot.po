@@ -20,6 +20,15 @@ msgstr ""
 "¡Con gusto te ayudo! Podés enviarme uno de estos comandos para indicarme "
 "qué debo hacer:"
 
+#: justine_bank/main.py:59
+#, python-brace-format
+msgid ""
+"*For example*:\n"
+"{example}\n"
+msgstr ""
+"*Por ejemplo*:\n"
+"{example}\n"
+
 #: justine_bank/main.py:60
 msgid "Help replied"
 msgstr "Help replied"

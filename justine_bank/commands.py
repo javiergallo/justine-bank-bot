@@ -9,6 +9,7 @@ class CommandStatement:
     handler: CommandHandler
     arg_names: Optional[Tuple[str, ...]] = None
     help_text: str = ""
+    example: str = ""
     exclusive: bool = False
 
 

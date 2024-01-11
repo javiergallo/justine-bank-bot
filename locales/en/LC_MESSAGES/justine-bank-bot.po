@@ -19,6 +19,15 @@ msgid "List of commands:"
 msgstr ""
 "Glad to help! You can tell me what to do by sending one of these commands:"
 
+#: justine_bank/main.py:59
+#, python-brace-format
+msgid ""
+"*For example*:\n"
+"{example}\n"
+msgstr ""
+"*For example*:\n"
+"{example}\n"
+
 #: justine_bank/main.py:60
 msgid "Help replied"
 msgstr "Help replied"
