@@ -8,7 +8,7 @@ from datetime import datetime
 from justine_bank.constants import USERNAME_REGEX
 from justine_bank.settings import config
 
-database = databases.Database(config.database_config.url)
+database = databases.Database(config.database.url)
 metadata = sqlalchemy.MetaData()
 
 
@@ -60,5 +60,5 @@ class Transfer(ormar.Model):
     amount: float = ormar.Float(minimum=0.0)
 
 
-engine = sqlalchemy.create_engine(config.database_config.url)
+engine = sqlalchemy.create_engine(config.database.url)
 metadata.create_all(engine)
