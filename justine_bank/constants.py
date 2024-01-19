@@ -17,3 +17,9 @@ TRANSFER_TEXT_PATTERN = _(
     "from @{transfer.sender.owner_username} "
     "to @{transfer.recipient.owner_username}"
 )
+CHARGE_TEXT_PATTERN = _(
+    "{transfer.creation_datetime:%d-%m-%Y %H:%M:%S}: "
+    "@{transfer.recipient.owner_username} charged "
+    "@{transfer.sender.owner_username} "
+    "{transfer.amount} justines"
+)

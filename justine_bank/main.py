@@ -9,6 +9,7 @@ from ormar.exceptions import AsyncOrmException
 
 from justine_bank.commands import Menu
 from justine_bank.constants import (
+    CHARGE_TEXT_PATTERN,
     ERROR_TEXT_PATTERN,
     ISSUE_TEXT_PATTERN,
     NO_ITEMS_TEXT_PATTERN,
@@ -247,6 +248,53 @@ async def transfer(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text(reply_text)
 
+
+@menu.command(
+    "charge",
+    arg_names=("amount", "username"),
+    help_text=_("Charge a user"),
+    example=_("`/charge 300 @javier_rooster`"),
+    exclusive=True
+)
+async def charge(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    try:
+        sender_username = clean_username(context.args[1])
+        amount = float(context.args[0])
+        recipient_username = update.message.from_user.username
+
+        sender, created = await Wallet.objects.get_or_create(
+            owner_username=sender_username
+        )
+        recipient, created = await Wallet.objects.get_or_create(
+            owner_username=recipient_username
+        )
+        transfer = Transfer(sender=sender, recipient=recipient, amount=amount)
+
+        await sender.update(balance=sender.balance - amount)
+        await recipient.update(balance=recipient.balance + amount)
+        await transfer.save()
+
+    except (IndexError, ValueError, AsyncOrmException) as exception:
+        reply_text = ERROR_TEXT_PATTERN.format(
+            description=_("User couldn't be charged. Review input.")
+        )
+        logger.exception(
+            _("Something went wrong while charging user: {exception}.").format(
+                exception=exception
+            )
+        )
+
+    else:
+        reply_text = CHARGE_TEXT_PATTERN.format(transfer=transfer)
+        logger.info(
+            _("{recipient_username} charged {sender_username} {amount} justines").format(
+                amount=amount,
+                sender_username=sender_username,
+                recipient_username=recipient_username,
+            )
+        )
+
+    await update.message.reply_text(reply_text)
 
 if __name__ == "__main__":
     api_token = config.api_token or typer.prompt(_("API token"), hide_input=True)
