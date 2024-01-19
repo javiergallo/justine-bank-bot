@@ -141,7 +141,7 @@ async def issue(update: Update, context: ContextTypes.DEFAULT_TYPE):
         try:
             amount = float(context.args[0])
             recipient_username = clean_username(context.args[1])
-            
+
             recipient, created = await Wallet.objects.get_or_create(
                 owner_username=recipient_username
             )
@@ -214,6 +214,8 @@ async def transfer(update: Update, context: ContextTypes.DEFAULT_TYPE):
         amount = float(context.args[0])
         recipient_username = clean_username(context.args[1])
 
+        assert sender_username != recipient_username
+
         sender, created = await Wallet.objects.get_or_create(
             owner_username=sender_username
         )
@@ -226,7 +228,7 @@ async def transfer(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await recipient.update(balance=recipient.balance + amount)
         await transfer.save()
 
-    except (IndexError, ValueError, AsyncOrmException) as exception:
+    except (AssertionError, IndexError, ValueError, AsyncOrmException) as exception:
         reply_text = ERROR_TEXT_PATTERN.format(
             description=_("Justines couldn't be transfered. Review input.")
         )
@@ -262,6 +264,8 @@ async def charge(update: Update, context: ContextTypes.DEFAULT_TYPE):
         amount = float(context.args[0])
         recipient_username = update.message.from_user.username
 
+        assert sender_username != recipient_username
+
         sender, created = await Wallet.objects.get_or_create(
             owner_username=sender_username
         )
@@ -274,7 +278,7 @@ async def charge(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await recipient.update(balance=recipient.balance + amount)
         await transfer.save()
 
-    except (IndexError, ValueError, AsyncOrmException) as exception:
+    except (AssertionError, IndexError, ValueError, AsyncOrmException) as exception:
         reply_text = ERROR_TEXT_PATTERN.format(
             description=_("User couldn't be charged. Review input.")
         )
