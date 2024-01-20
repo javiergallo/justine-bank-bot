@@ -1,6 +1,6 @@
 from justine_bank.localization import _
 
-USERNAME_REGEX = r"^(?=(?:[0-9_]*[A-Za-z]){3})[A-Za-z0-9_]{5,}$"
+USERNAME_REGEX = r"^(?=(?:[0-9_]*[a-z]){3})[a-z0-9_]{5,}$"
 
 NO_ITEMS_TEXT_PATTERN = _("There are no {items_type}")
 ERROR_TEXT_PATTERN = _("Something went wrong. {description}")
