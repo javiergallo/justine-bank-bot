@@ -48,7 +48,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     help_text=_("Show help")
 )
 async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    username = update.message.from_user.username
+    username = clean_username(update.message.from_user.username)
 
     reply_text = _("List of commands:") + "\n\n"
     for statement in menu:
@@ -72,7 +72,7 @@ async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
     exclusive=True,
 )
 async def list_wallets(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    username = update.message.from_user.username
+    username = clean_username(update.message.from_user.username)
 
     if username in config.staff_usernames:
         wallets = await Wallet.objects.all()
@@ -94,7 +94,7 @@ async def list_wallets(update: Update, context: ContextTypes.DEFAULT_TYPE):
     help_text=_("Show wallet"),
 )
 async def show_wallet(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    username = update.message.from_user.username
+    username = clean_username(update.message.from_user.username)
     wallet, created = await Wallet.objects.get_or_create(
         owner_username=username
     )
@@ -111,7 +111,7 @@ async def show_wallet(update: Update, context: ContextTypes.DEFAULT_TYPE):
     exclusive=True
 )
 async def list_issues(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    username = update.message.from_user.username
+    username = clean_username(update.message.from_user.username)
 
     if username in config.staff_usernames:
         issues = await Issue.objects.select_related("recipient").all()
@@ -135,7 +135,7 @@ async def list_issues(update: Update, context: ContextTypes.DEFAULT_TYPE):
     exclusive=True
 )
 async def issue(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    username = update.message.from_user.username
+    username = clean_username(update.message.from_user.username)
 
     if username in config.staff_usernames:
         try:
@@ -177,7 +177,7 @@ async def issue(update: Update, context: ContextTypes.DEFAULT_TYPE):
     help_text=_("List transfers")
 )
 async def list_transfers(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    username = update.message.from_user.username
+    username = clean_username(update.message.from_user.username)
 
     if username in config.staff_usernames:
         transfers = (
@@ -210,7 +210,7 @@ async def list_transfers(update: Update, context: ContextTypes.DEFAULT_TYPE):
 )
 async def transfer(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
-        sender_username = update.message.from_user.username
+        sender_username = clean_username(update.message.from_user.username)
         amount = float(context.args[0])
         recipient_username = clean_username(context.args[1])
 
@@ -262,7 +262,7 @@ async def charge(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         sender_username = clean_username(context.args[1])
         amount = float(context.args[0])
-        recipient_username = update.message.from_user.username
+        recipient_username = clean_username(update.message.from_user.username)
 
         assert sender_username != recipient_username
 
