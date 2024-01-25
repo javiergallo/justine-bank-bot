@@ -1,3 +1,5 @@
+import logging
+
 from dataclasses import dataclass
 from typing import List, Optional, Tuple
 
@@ -8,6 +10,7 @@ from justine_bank.localization import _
 from justine_bank.settings import config
 from justine_bank.utils import clean_username
 
+logger = logging.getLogger('abc')
 
 
 @dataclass
@@ -52,6 +55,7 @@ class Menu:
                         reply_text,
                         parse_mode='Markdown'
                     )
+                    logger.error(_("Command restricted to staff"))
                 else:
                     await callback(update=update, context=context)
 
