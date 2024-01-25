@@ -72,21 +72,19 @@ async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
     restricted=config.wallets.list_restricted,
 )
 async def list_wallets(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    username = clean_username(update.message.from_user.username)
+    # TODO sort alphabetically?
+    wallets = await Wallet.objects.all()
 
-    if username in config.staff_usernames:
-        wallets = await Wallet.objects.all()
+    if wallets:
+        reply_text = "\n".join(
+            WALLET_TEXT_PATTERN.format(wallet=wallet)
+            for wallet in wallets
+        )
+    else:
+        reply_text = NO_ITEMS_TEXT_PATTERN.format(items_type="billeteras")
 
-        if wallets:
-            reply_text = "\n".join(
-                WALLET_TEXT_PATTERN.format(wallet=wallet)
-                for wallet in wallets
-            )
-        else:
-            reply_text = NO_ITEMS_TEXT_PATTERN.format(items_type="billeteras")
-
-        await update.message.reply_text(reply_text)
-        logger.info(_("Wallets listed"))
+    await update.message.reply_text(reply_text)
+    logger.info(_("Wallets listed"))
 
 
 @menu.command(
@@ -106,26 +104,26 @@ async def show_wallet(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logger.info(_("Wallet shown"))
 
 
+# TODO dropwallet command
+
+
 @menu.command(
     "listissues",
     help_text=_("List issues"),
     restricted=True
 )
 async def list_issues(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    username = clean_username(update.message.from_user.username)
+    issues = await Issue.objects.select_related("recipient").all()
 
-    if username in config.staff_usernames:
-        issues = await Issue.objects.select_related("recipient").all()
+    if issues:
+        reply_text = "\n".join(
+            ISSUE_TEXT_PATTERN.format(issue=issue) for issue in issues
+        )
+    else:
+        reply_text = NO_ITEMS_TEXT_PATTERN.format(items_type=_("issues"))
 
-        if issues:
-            reply_text = "\n".join(
-                ISSUE_TEXT_PATTERN.format(issue=issue) for issue in issues
-            )
-        else:
-            reply_text = NO_ITEMS_TEXT_PATTERN.format(items_type=_("issues"))
-
-        await update.message.reply_text(reply_text)
-        logger.info(_("Issues listed"))
+    await update.message.reply_text(reply_text)
+    logger.info(_("Issues listed"))
 
 
 @menu.command(
@@ -136,41 +134,42 @@ async def list_issues(update: Update, context: ContextTypes.DEFAULT_TYPE):
     restricted=True
 )
 async def issue(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    username = clean_username(update.message.from_user.username)
+    try:
+        amount = float(context.args[0])
 
-    if username in config.staff_usernames:
-        try:
-            amount = float(context.args[0])
-            recipient_username = clean_username(context.args[1])
+        # TODO validate if user in group
+        recipient_username = clean_username(context.args[1])
 
-            recipient, created = await Wallet.objects.get_or_create(
-                owner_username=recipient_username
+        recipient, created = await Wallet.objects.get_or_create(
+            owner_username=recipient_username
+        )
+        issue = Issue(recipient=recipient, amount=amount)
+
+        await recipient.update(balance=recipient.balance + amount)
+        await issue.save()
+
+    # TODO improve exception handling
+    except (IndexError, ValueError, AsyncOrmException) as exception:
+        reply_text = ERROR_TEXT_PATTERN.format(
+            description=_("Justines couldn't be issued. Review input.")
+        )
+        logger.exception(
+            _("Something went wrong while issuing justines: {exception}.").format(
+                exception=exception
             )
-            issue = Issue(recipient=recipient, amount=amount)
+        )
 
-            await recipient.update(balance=recipient.balance + amount)
-            await issue.save()
-
-        except (IndexError, ValueError, AsyncOrmException) as exception:
-            reply_text = ERROR_TEXT_PATTERN.format(
-                description=_("Justines couldn't be issued. Review input.")
+    else:
+        reply_text = ISSUE_TEXT_PATTERN.format(issue=issue)
+        logger.info(
+            _("{amount} justines issued to {recipient_username}").format(
+                amount=amount,
+                recipient_username=recipient_username,
             )
-            logger.exception(
-                _("Something went wrong while issuing justines: {exception}.").format(
-                    exception=exception
-                )
-            )
+        )
 
-        else:
-            reply_text = ISSUE_TEXT_PATTERN.format(issue=issue)
-            logger.info(
-                _("{amount} justines issued to {recipient_username}").format(
-                    amount=amount,
-                    recipient_username=recipient_username,
-                )
-            )
+    await update.message.reply_text(reply_text)
 
-        await update.message.reply_text(reply_text)
 
 
 @menu.command(
