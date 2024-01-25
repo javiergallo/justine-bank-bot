@@ -69,7 +69,7 @@ async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
 @menu.command(
     "listwallets",
     help_text=_("List wallets"),
-    restricted=True,
+    restricted=config.wallets.list_restricted,
 )
 async def list_wallets(update: Update, context: ContextTypes.DEFAULT_TYPE):
     username = clean_username(update.message.from_user.username)
@@ -92,6 +92,7 @@ async def list_wallets(update: Update, context: ContextTypes.DEFAULT_TYPE):
 @menu.command(
     "showwallet",
     help_text=_("Show wallet"),
+    restricted=config.wallets.show_restricted,
 )
 async def show_wallet(update: Update, context: ContextTypes.DEFAULT_TYPE):
     username = clean_username(update.message.from_user.username)
@@ -174,7 +175,8 @@ async def issue(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 @menu.command(
     "listtransfers",
-    help_text=_("List transfers")
+    help_text=_("List transfers"),
+    restricted=config.transfers.list_restricted,
 )
 async def list_transfers(update: Update, context: ContextTypes.DEFAULT_TYPE):
     username = clean_username(update.message.from_user.username)
@@ -207,6 +209,7 @@ async def list_transfers(update: Update, context: ContextTypes.DEFAULT_TYPE):
     arg_names=("amount", "username"),
     help_text=_("Transfer justines to a user"),
     example=_("`/transfer 300 @javier_rooster`"),
+    restricted=config.transfers.action_restricted,
 )
 async def transfer(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
