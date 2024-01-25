@@ -10,7 +10,7 @@ class CommandStatement:
     arg_names: Optional[Tuple[str, ...]] = None
     help_text: str = ""
     example: str = ""
-    exclusive: bool = False
+    restricted: bool = False
 
 
 class Menu:

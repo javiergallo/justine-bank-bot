@@ -52,7 +52,7 @@ async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     reply_text = _("List of commands:") + "\n\n"
     for statement in menu:
-        if not statement.exclusive or username in config.staff_usernames:
+        if not statement.restricted or username in config.staff_usernames:
             cmd_name = next(iter(statement.handler.commands))
             arg_names_str = ' '.join(f"[{name}]" for name in statement.arg_names)
             reply_text += f"/{cmd_name} {arg_names_str}\n{statement.help_text}\n"
@@ -69,7 +69,7 @@ async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
 @menu.command(
     "listwallets",
     help_text=_("List wallets"),
-    exclusive=True,
+    restricted=True,
 )
 async def list_wallets(update: Update, context: ContextTypes.DEFAULT_TYPE):
     username = clean_username(update.message.from_user.username)
@@ -108,7 +108,7 @@ async def show_wallet(update: Update, context: ContextTypes.DEFAULT_TYPE):
 @menu.command(
     "listissues",
     help_text=_("List issues"),
-    exclusive=True
+    restricted=True
 )
 async def list_issues(update: Update, context: ContextTypes.DEFAULT_TYPE):
     username = clean_username(update.message.from_user.username)
@@ -132,7 +132,7 @@ async def list_issues(update: Update, context: ContextTypes.DEFAULT_TYPE):
     arg_names=("amount", "username"),
     help_text=_("Issue justines for a user"),
     example=_("`/issue 300 @javier_rooster`"),
-    exclusive=True
+    restricted=True
 )
 async def issue(update: Update, context: ContextTypes.DEFAULT_TYPE):
     username = clean_username(update.message.from_user.username)
@@ -256,7 +256,7 @@ async def transfer(update: Update, context: ContextTypes.DEFAULT_TYPE):
     arg_names=("amount", "username"),
     help_text=_("Charge a user"),
     example=_("`/charge 300 @javier_rooster`"),
-    exclusive=True
+    restricted=True
 )
 async def charge(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
