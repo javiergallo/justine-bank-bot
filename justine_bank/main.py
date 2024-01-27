@@ -17,6 +17,7 @@ from justine_bank.constants import (
     TRANSFER_TEXT_PATTERN,
     WALLET_TEXT_PATTERN,
 )
+from justine_bank.exceptions import CommandException
 from justine_bank.localization import _
 from justine_bank.models import Issue, Transfer, Wallet
 from justine_bank.settings import config
@@ -220,39 +221,65 @@ async def list_transfers(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def transfer(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         sender_username = clean_username(update.message.from_user.username)
-        amount = float(context.args[0])
-        recipient_username = clean_username(context.args[1])
 
-        assert sender_username != recipient_username
+        try:
+            amount = float(context.args[0])
+            recipient_username = clean_username(context.args[1])
+
+        except IndexError:
+            raise CommandException(_("Arguments are wrong, maybe?"))
+
+        if sender_username == recipient_username:
+            raise CommandException(
+                _("Sender and recipient cannot be the same")
+            )
 
         if config.wallets.creation_restricted and \
            sender_username not in config.staff_usernames:
-            sender = await Wallet.objects.get(
-                owner_username=sender_username
-            )
-            recipient = await Wallet.objects.get(
-                owner_username=recipient_username
-            )
+            try:
+                sender = await Wallet.objects.get(
+                    owner_username=sender_username
+                )
+                recipient = await Wallet.objects.get(
+                    owner_username=recipient_username
+                )
+            except (AsyncOrmException, ValueError):
+                raise CommandException(
+                    _("Maybe you don't have wallet.")  + " " +
+                    _("Maybe the recipient doesn't have a wallet.")
+                )
         else:
-            sender, sender_created = await Wallet.objects.get_or_create(
-                owner_username=sender_username
+            try:
+                sender, sender_created = await Wallet.objects.get_or_create(
+                    owner_username=sender_username
+                )
+                recipient, recipient_created = await Wallet.objects.get_or_create(
+                    owner_username=recipient_username
+                )
+            except (AsyncOrmException, ValueError):
+                raise CommandException()
+
+        try:
+            transfer = Transfer(sender=sender, recipient=recipient, amount=amount)
+
+            await sender.update(balance=sender.balance - amount)
+            await recipient.update(balance=recipient.balance + amount)
+            await transfer.save()
+
+        except (AsyncOrmException, ValueError) as exception:
+            raise CommandException(
+                _("Check your balance.")  + " " +
+                _("Maybe you don't have enough money.")
             )
-            recipient, recipient_created = await Wallet.objects.get_or_create(
-                owner_username=recipient_username
-            )
 
-        transfer = Transfer(sender=sender, recipient=recipient, amount=amount)
-
-        await sender.update(balance=sender.balance - amount)
-        await recipient.update(balance=recipient.balance + amount)
-        await transfer.save()
-
-    except (AssertionError, IndexError, ValueError, AsyncOrmException) as exception:
+    except CommandException as exception:
         reply_text = ERROR_TEXT_PATTERN.format(
-            description=_("Justines couldn't be transfered. Review input.")
+            description=_("Justines couldn't be transferred. {exception}").format(
+                exception=exception
+            )
         )
         logger.exception(
-            _("Something went wrong while transferring justines: {exception}.").format(
+            _("Something went wrong while transferring justines. {exception}.").format(
                 exception=exception
             )
         )
