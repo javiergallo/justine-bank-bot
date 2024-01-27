@@ -72,8 +72,10 @@ async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
     restricted=config.wallets.list_restricted,
 )
 async def list_wallets(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # TODO sort alphabetically?
-    wallets = await Wallet.objects.all()
+    if config.wallets.sorted_by_username:
+        wallets = await Wallet.objects.order_by("owner_username").all()
+    else:
+        wallets = await Wallet.objects.all()
 
     if wallets:
         reply_text = "\n".join(

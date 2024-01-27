@@ -13,6 +13,8 @@ class WalletsConfig(BaseModel):
     list_restricted: bool = True
     show_restricted: bool = False
 
+    sorted_by_username: bool = True
+
 
 class TransfersConfig(BaseModel):
     action_restricted: bool = False
