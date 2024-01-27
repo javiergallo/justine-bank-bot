@@ -96,9 +96,14 @@ async def list_wallets(update: Update, context: ContextTypes.DEFAULT_TYPE):
 )
 async def show_wallet(update: Update, context: ContextTypes.DEFAULT_TYPE):
     username = clean_username(update.message.from_user.username)
-    wallet, created = await Wallet.objects.get_or_create(
-        owner_username=username
-    )
+
+    if config.wallets.creation_restricted and \
+       username not in config.staff_usernames:
+        wallet = await Wallet.objects.get(owner_username=username)
+    else:
+        wallet, created = await Wallet.objects.get_or_create(
+            owner_username=username
+        )
 
     reply_text = WALLET_TEXT_PATTERN.format(wallet=wallet)
 
@@ -220,12 +225,22 @@ async def transfer(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         assert sender_username != recipient_username
 
-        sender, created = await Wallet.objects.get_or_create(
-            owner_username=sender_username
-        )
-        recipient, created = await Wallet.objects.get_or_create(
-            owner_username=recipient_username
-        )
+        if config.wallets.creation_restricted and \
+           sender_username not in config.staff_usernames:
+            sender = await Wallet.objects.get(
+                owner_username=sender_username
+            )
+            recipient = await Wallet.objects.get(
+                owner_username=recipient_username
+            )
+        else:
+            sender, sender_created = await Wallet.objects.get_or_create(
+                owner_username=sender_username
+            )
+            recipient, recipient_created = await Wallet.objects.get_or_create(
+                owner_username=recipient_username
+            )
+
         transfer = Transfer(sender=sender, recipient=recipient, amount=amount)
 
         await sender.update(balance=sender.balance - amount)

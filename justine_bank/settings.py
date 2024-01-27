@@ -10,6 +10,7 @@ class DatabaseConfig(BaseModel):
 
 
 class WalletsConfig(BaseModel):
+    creation_restricted: bool = True
     list_restricted: bool = True
     show_restricted: bool = False
 
