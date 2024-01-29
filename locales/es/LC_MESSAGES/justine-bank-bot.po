@@ -122,7 +122,7 @@ msgstr "Cobrarle a unx usuarix cierta cantidad de justines."
 msgid "User couldn't be charged. Review input."
 msgstr ""
 "No se le pudo cobrar al usuarix. Por favor, revisá la lista de "
-"parámetros y valores que ingresaste.
+"parámetros y valores que ingresaste."
 
 #, python-brace-format
 msgid "Something went wrong while charging user: {exception}."
