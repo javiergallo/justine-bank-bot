@@ -2,24 +2,22 @@ msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 
-#: justine_bank/main.py:36
+msgid "Message handled"
+msgstr "Message handled"
+
 msgid "Start or restart this conversation"
 msgstr "Just start or restart this conversation"
 
-#: justine_bank/main.py:42
 msgid "App started"
 msgstr "App started"
 
-#: justine_bank/main.py:47
 msgid "Show help"
 msgstr "Show some help -- basically, the list of commands"
 
-#: justine_bank/main.py:52
 msgid "List of commands:"
 msgstr ""
 "Glad to help! You can tell me what to do by sending one of these commands:"
 
-#: justine_bank/main.py:59
 #, python-brace-format
 msgid ""
 "*For example*:\n"
@@ -28,123 +26,133 @@ msgstr ""
 "*For example*:\n"
 "{example}\n"
 
-#: justine_bank/main.py:60
 msgid "Help replied"
 msgstr "Help replied"
 
-#: justine_bank/main.py:65
 msgid "List wallets"
 msgstr "List wallets -- including owner and balance"
 
-#: justine_bank/main.py:84
 msgid "Wallets listed"
 msgstr "Wallets listed"
 
-#: justine_bank/main.py:93
 msgid "Show wallet"
 msgstr "Show the contents of your wallet"
 
-#: justine_bank/main.py:104
 msgid "Wallet shown"
 msgstr "Wallet shown"
 
-#: justine_bank/main.py:89
 msgid "List issues"
 msgstr "List registered issues -- including amount and recipient"
 
-#: justine_bank/main.py:103
 msgid "issues"
 msgstr "issues"
 
-#: justine_bank/main.py:106
 msgid "Issues listed"
 msgstr "Issues listed"
 
-#: justine_bank/main.py:112
 msgid "Issue justines for a user"
 msgstr "Issue justines for a user"
 
-#: justine_bank/main.py:133
 msgid "Justines couldn't be issued. Review input."
 msgstr ""
 "Justines couldn't be issued. Please, review the list of parameters and "
 "values you entered."
 
-#: justine_bank/main.py:136
 #, python-brace-format
 msgid "Something went wrong while issuing justines: {exception}."
 msgstr "Something went wrong while issuing justines: {exception}."
 
-#: justine_bank/main.py:144
 #, python-brace-format
 msgid "{amount} justines issued to {recipient_username}"
 msgstr "{amount} justines issued to {recipient_username}"
 
-#: justine_bank/main.py:155
 msgid "List transfers"
 msgstr "List registered transfers -- including sender, amount and recipient"
 
-#: justine_bank/main.py:177
 msgid "transfers"
 msgstr "transfers"
 
-#: justine_bank/main.py:180
 msgid "Transfers listed"
 msgstr "Transfers listed"
 
-#: justine_bank/main.py:186
 msgid "Transfer justines to a user"
 msgstr "Transfer justines to a user"
 
-#: justine_bank/main.py:208
-msgid "Justines couldn't be transfered. Review input."
+msgid "Arguments are wrong, maybe?"
+msgstr "Parameters are wrong, maybe? Check your input."
+
+msgid "Sender and recipient cannot be the same"
+msgstr ""
+"Sender and recipient cannot be the same. I mean, you cannot transfers "
+"justines to yourself..."
+
+msgid "Maybe you don't have wallet."
+msgstr "Maybe you don't have wallet."
+
+msgid "Maybe the recipient doesn't have a wallet."
+msgstr "Maybe the recipient doesn't have a wallet."
+
+msgid "Check your balance."
+msgstr "You might want to check your balance."
+
+msgid "Maybe you don't have enough money."
+msgstr "Maybe you don't have enough money."
+
+msgid "Justines couldn't be transferred. Review input."
 msgstr ""
 "Justines couldn't be transferred. Please, review the list of parameters and "
 "values you entered."
 
-#: justine_bank/main.py:211
 #, python-brace-format
 msgid "Something went wrong while transferring justines: {exception}."
 msgstr "Something went wrong while transferring justines: {exception}."
 
-#: justine_bank/main.py:219
 #, python-brace-format
 msgid ""
 "{amount} justines transferred from {sender_username} to {recipient_username}"
 msgstr ""
 "{amount} justines transferred from {sender_username} to {recipient_username}"
 
-#: justine_bank/main.py:230
+msgid "Charge a user"
+msgstr "Charge a user a specific amount of justines."
+
+msgid "User couldn't be charged. Review input."
+msgstr ""
+"User couldn't be charged. Please, review the list of parameters and "
+"values you entered."
+
+#, python-brace-format
+msgid "Something went wrong while charging user: {exception}."
+msgstr "Something went wrong while charging user: {exception}."
+
+#, python-brace-format
+msgid "{recipient_username} charged {sender_username} {amount} justines"
+msgstr "{recipient_username} charged {sender_username} {amount} justines"
+
 msgid "API token"
 msgstr "API token"
 
-#: justine_bank/main.py:236
 msgid "Polling..."
 msgstr "Polling..."
 
-#: justine_bank/constants.py:5
 #, python-brace-format
 msgid "There are no {items_type}"
-msgstr "Apparently, there are no {items_type}. \\U0001F937"
+msgstr "Apparently, there are no {items_type}."
 
-#: justine_bank/constants.py:6
 #, python-brace-format
 msgid "Something went wrong. {description}"
 msgstr "Opps! Something went wrong! {description} \\U0001F974"
 
-#: justine_bank/constants.py:8
 #, python-brace-format
 msgid "Hello @{username}"
 msgstr ""
 "¡Hello @{username}! I'm the Justine Bank manager bot. Type /help if you want "
 "me to tell you what you can do in the Justine Bank."
 
-#: justine_bank/constants.py:11
 #, python-brace-format
 msgid "@{wallet.owner_username}: {wallet.balance} justines."
 msgstr "@{wallet.owner_username}: {wallet.balance} justines."
 
-#: justine_bank/constants.py:13
 msgid ""
 "{issue.creation_datetime:%d-%m-%Y %H:%M:%S}: {issue.amount} justines issued "
 "for @{issue.recipient.owner_username}"
@@ -152,7 +160,6 @@ msgstr ""
 "{issue.creation_datetime:%d-%m-%Y %H:%M:%S}: {issue.amount} justines issued "
 "for @{issue.recipient.owner_username}"
 
-#: justine_bank/constants.py:18
 msgid ""
 "{transfer.creation_datetime:%d-%m-%Y %H:%M:%S}: {transfer.amount} justines "
 "transferred from @{transfer.sender.owner_username} to @{transfer.recipient."
