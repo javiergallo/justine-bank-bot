@@ -56,7 +56,7 @@ msgstr "Emitir justines para unx usuarix"
 
 msgid "Justines couldn't be issued. Review input."
 msgstr ""
-"Los justines no puedieron ser emitidos. Por favor, revisá la lista de "
+"Los justines no pudieron ser emitidos. Por favor, revisá la lista de "
 "parámetros y valores que ingresaste."
 
 #, python-brace-format
@@ -103,7 +103,7 @@ msgstr "Quizás tu balance sea insuficiente."
 
 msgid "Justines couldn't be transferred. {exception}"
 msgstr ""
-"Los justines no puedieron ser transferidos. {exception}"
+"Los justines no pudieron ser transferidos. {exception}"
 
 #, python-brace-format
 msgid "Something went wrong while transferring justines: {exception}."
