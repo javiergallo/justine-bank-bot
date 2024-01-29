@@ -101,10 +101,9 @@ msgstr "Fijate cuál es tu saldo."
 msgid "Maybe you don't have enough money."
 msgstr "Quizás tu balance sea insuficiente."
 
-msgid "Justines couldn't be transferred. Review input."
+msgid "Justines couldn't be transferred. {exception}"
 msgstr ""
-"Los justines no puedieron ser transferidos. Por favor, revisá la lista de "
-"parámetros y valores que ingresaste."
+"Los justines no puedieron ser transferidos. {exception}"
 
 #, python-brace-format
 msgid "Something went wrong while transferring justines: {exception}."
