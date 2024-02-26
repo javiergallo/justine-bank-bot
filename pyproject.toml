@@ -4,7 +4,7 @@ version = "0.2.0"
 description = ""
 authors = ["Javier Gallo <javier_rooster@yahoo.com.ar>"]
 readme = "README.md"
-packages = [{include = "justine_bank_bot"}]
+packages = [{include = "justine_bank"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -14,6 +14,8 @@ aiosqlite = "^0.19.0"
 pydantic = {version = "1.10.8", extras = ["dotenv"]}
 typer = "^0.9.0"
 
+[tool.poetry.scripts]
+justine = "justine_bank.main:main"
 
 [build-system]
 requires = ["poetry-core"]

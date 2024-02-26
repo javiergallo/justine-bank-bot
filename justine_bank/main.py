@@ -346,7 +346,8 @@ async def charge(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text(reply_text)
 
-if __name__ == "__main__":
+
+def main():
     api_token = config.api_token or typer.prompt(_("API token"), hide_input=True)
     app = Application.builder().token(api_token).build()
 
@@ -355,3 +356,7 @@ if __name__ == "__main__":
 
     logger.info(_("Polling..."))
     app.run_polling(poll_interval=config.poll_interval)
+
+
+if __name__ == "__main__":
+    main()
