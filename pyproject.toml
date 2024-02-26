@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "justine-bank-bot"
-version = "0.1.0"
+version = "0.2.0"
 description = ""
 authors = ["Javier Gallo <javier_rooster@yahoo.com.ar>"]
 readme = "README.md"
